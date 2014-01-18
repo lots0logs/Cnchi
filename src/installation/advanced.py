@@ -48,6 +48,7 @@ class InstallationAdvanced(Gtk.Box):
     def __init__(self, params):
         """ Store class parameters """
         self.blvm = False
+        self.btrfs = False
         self.header = params['header']
         self.forward_button = params['forward_button']
         self.backwards_button = params['backwards_button']
@@ -58,6 +59,7 @@ class InstallationAdvanced(Gtk.Box):
 
         self.lv_partitions = []
         self.disks_changed = []
+        self.btrfs_subvolumes = []
 
         self.my_first_time = True
 
@@ -74,7 +76,7 @@ class InstallationAdvanced(Gtk.Box):
         self.to_be_deleted = []
 
         self.uefi = False
-        if os.path.exists("/sys/firmware/efi/systab"):
+        if os.path.exists("/sys/firmware/efi"):
             self.uefi = True
 
         # Call base class
@@ -128,7 +130,8 @@ class InstallationAdvanced(Gtk.Box):
             
             if self.uefi:
                 # Add "/boot/efi" mountpoint in the mountpoint combobox when in uefi mode
-                combo.append_text('/boot/efi')
+                # combo.append_text('/boot/efi')
+                pass
 
         # We will store our devices here
         self.disks = None
@@ -354,8 +357,10 @@ class InstallationAdvanced(Gtk.Box):
         if self.disks == None:
             self.disks = pm.get_devices()
         self.lv_partitions = []
+        self.btrfs_subvolumes = []
         self.diskdic['mounts'] = []
         vgs = lvm.get_volume_groups()
+        subvols = btrfs.get_subvolumes()
         if vgs:
             for vg in vgs:
                 is_ssd = False
